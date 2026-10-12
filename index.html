@@ -132,7 +132,7 @@ dialog::backdrop{background:#1B1416aa}
 
 <dialog id="adm" aria-label="Espace admin">
 <div class="ah"><h3>Espace admin</h3><button class="btn s" id="close">Fermer</button></div>
-<div class="ab">
+<div class="ab"><p class="msg" id="dbmsg" role="status" style="margin-bottom:14px"></p>
 <div id="login"><form id="lf" class="g"><input type="email" name="email" placeholder="Email" required autocomplete="username" class="w"><input type="password" name="password" placeholder="Mot de passe" required autocomplete="current-password" class="w"><button class="btn w" type="submit">Se connecter</button></form><p class="msg" id="lmsg" role="status"></p></div>
 <div id="panel" hidden>
 <div class="tabs" role="tablist"><button data-t="pm" aria-selected="true">Menu</button><button data-t="pr" aria-selected="false">Réservations <span class="badge" id="nRes" hidden></span></button><button data-t="pv" aria-selected="false">Avis</button><button data-t="ps" aria-selected="false">Réglages du site</button></div>
@@ -165,7 +165,7 @@ dialog::backdrop{background:#1B1416aa}
 <script>
 /* 1) Colle ici l'URL du projet et la clé "anon public" de Supabase */
 var SUPABASE_URL='https://nqauqewbdiksoolsjwhc.supabase.co', SUPABASE_KEY='sb_publishable_KM0WHrrGSoIe0GQGARpQkA_M2iPluua';
-var sb=(SUPABASE_URL&&SUPABASE_KEY&&window.supabase)?window.supabase.createClient(https:/ /nqauqewbdiksoolsjwhc.supabase.co,sb_publishable_KM0WHrrGSoIe0GQGARpQkA_M2iPluua) :null;
+var sb=(SUPABASE_URL&&SUPABASE_KEY&&window.supabase)?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 var $=function(s){return document.querySelector(s)},$$=function(s){return [].slice.call(document.querySelectorAll(s))};
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 var safe=function(u){return /^(https?:\/\/|data:image\/)/i.test(u||'')?u:''};
@@ -217,12 +217,12 @@ function renderRev(){
 }
 async function loadPublic(){
  if(sb){
-  var s=await sb.from('settings').select('data').eq('id',1).maybeSingle();
+  var s=await sb.from('settings').select('data').eq('id',1).maybeSingle();if(s.error)console.warn('Supabase settings:',s.error.message);
   if(s.data&&s.data.data)S=Object.assign({},DEF_SET,s.data.data);
   var m=await sb.from('menu_items').select('*').eq('available',true).order('created_at');
-  if(!m.error&&m.data&&m.data.length)MENU=m.data;
+  if(m.error)console.warn('Supabase menu_items:',m.error.message);if(!m.error&&m.data&&m.data.length)MENU=m.data;
   var r=await sb.from('reviews').select('*').eq('approved',true).order('created_at',{ascending:false}).limit(9);
-  if(!r.error&&r.data&&r.data.length)REV=r.data;
+  if(r.error)console.warn('Supabase reviews:',r.error.message);if(!r.error&&r.data&&r.data.length)REV=r.data;
  }
  renderAll();
 }
@@ -237,12 +237,12 @@ var d0=new Date();$('#rsf').date.min=d0.getFullYear()+'-'+String(d0.getMonth()+1
 $('#rsf').addEventListener('submit',async function(e){
  e.preventDefault();var f=e.target,m=$('#rsmsg');if(!sb){m.textContent=t('needSb');return}
  var r=await sb.from('reservations').insert({name:f.name.value.trim(),phone:f.phone.value.trim(),date:f.date.value,time:f.time.value,guests:+f.guests.value,note:f.note.value.trim()||null});
- if(r.error){m.textContent=t('err');return}f.reset();f.guests.value=2;m.textContent=t('resOk');
+ if(r.error){console.error('Supabase:',r.error.message);m.textContent=t('err');return}f.reset();f.guests.value=2;m.textContent=t('resOk');
 });
 $('#rf').addEventListener('submit',async function(e){
  e.preventDefault();var f=e.target,m=$('#rmsg');if(!sb){m.textContent=t('needSb');return}
  var r=await sb.from('reviews').insert({author:f.author.value.trim(),rating:+f.rating.value,comment:f.comment.value.trim()});
- if(r.error){m.textContent=t('err');return}f.reset();m.textContent=t('revOk');
+ if(r.error){console.error('Supabase:',r.error.message);m.textContent=t('err');return}f.reset();m.textContent=t('revOk');
 });
 
 /* Admin */
@@ -253,15 +253,23 @@ dlg.addEventListener('close',function(){if(location.hash==='#admin')history.repl
 $('#close').onclick=function(){dlg.close()};
 window.addEventListener('hashchange',hashCheck);
 $('#logoutBtn').onclick=async function(){if(sb)await sb.auth.signOut();showAdmin(false)};
+async function dbCheck(){
+ var m=$('#dbmsg');
+ if(!sb){m.textContent=(!SUPABASE_URL||!SUPABASE_KEY)?"Supabase non configuré : SUPABASE_URL ou SUPABASE_KEY est vide dans le script.":"Le script Supabase n'a pas chargé (internet coupé ou bloqueur de pub ?).";return}
+ var n=['menu_items','reviews','reservations','settings'];
+ var res=await Promise.all(n.map(function(x){return sb.from(x).select('*',{head:true,count:'exact'})}));
+ var bad=[];res.forEach(function(r,i){if(r.error)bad.push(n[i]+' : '+r.error.message)});
+ m.textContent=bad.length?'Problème Supabase → '+bad.join(' | '):'Supabase : connexion OK.';
+}
 async function checkSession(){
- if(!sb){$('#lmsg').textContent="Supabase n'est pas encore configuré (voir SUPABASE_URL dans le script).";return}
+ await dbCheck();if(!sb)return;
  var s=await sb.auth.getSession();showAdmin(!!(s.data&&s.data.session));
 }
 function showAdmin(on){$('#login').hidden=on;$('#panel').hidden=!on;$('#logoutBtn').hidden=!on;if(on)loadAdmin()}
 $('#lf').addEventListener('submit',async function(e){
  e.preventDefault();if(!sb)return;var f=e.target;
  var r=await sb.auth.signInWithPassword({email:f.email.value,password:f.password.value});
- if(r.error){$('#lmsg').textContent='Email ou mot de passe incorrect.';return}
+ if(r.error){$('#lmsg').textContent='Connexion refusée : '+r.error.message;return}
  f.reset();$('#lmsg').textContent='';showAdmin(true);
 });
 $$('.tabs button').forEach(function(b){b.onclick=function(){
@@ -271,7 +279,7 @@ function loadAdmin(){admMenu();admRes();admRev();admSet()}
 function bts(arr){return '<span class="bt">'+arr.map(function(a){return '<button data-a="'+a[0]+'" data-id="'+a[1]+'"'+(a[2]!=null?' data-v="'+a[2]+'"':'')+'>'+a[3]+'</button>'}).join('')+'</span>'}
 
 async function admMenu(){
- var r=await sb.from('menu_items').select('*').order('created_at');AM=r.data||[];
+ var r=await sb.from('menu_items').select('*').order('created_at');AM=r.data||[];if(r.error){$('#adMenu').innerHTML='<p>Erreur : '+esc(r.error.message)+'</p>';return}
  $('#adMenu').innerHTML=AM.map(function(i){return '<div class="ad"><span>'+esc(L(i.name))+' <small>('+esc(L(i.category))+(i.price!=null?', '+esc(i.price)+' TND':'')+(i.available?'':', masqué')+')</small></span>'+bts([['me',i.id,null,'Modifier'],['mt',i.id,i.available,i.available?'Masquer':'Afficher'],['md',i.id,null,'Supprimer']])+'</div>'}).join('')||'<p>Aucun élément. Le site affiche le menu de départ.</p>';
  var cs={};AM.forEach(function(i){if(i.category&&i.category.fr)cs[i.category.fr]=1});
  $('#cats').innerHTML=Object.keys(cs).map(function(c){return '<option value="'+esc(c)+'">'}).join('');
@@ -288,13 +296,13 @@ $('#mf').addEventListener('submit',async function(e){
  resetMf();admMenu();loadPublic();
 });
 async function admRes(){
- var r=await sb.from('reservations').select('*').order('date',{ascending:false}).order('time',{ascending:false}).limit(100);var a=r.data||[];
+ var r=await sb.from('reservations').select('*').order('date',{ascending:false}).order('time',{ascending:false}).limit(100);var a=r.data||[];if(r.error){$('#adRes').innerHTML='<p>Erreur : '+esc(r.error.message)+'</p>';return}
  var p=a.filter(function(x){return x.status==='pending'}).length;$('#nRes').textContent=p;$('#nRes').hidden=!p;
  var lb={pending:'En attente',confirmed:'Confirmée',cancelled:'Annulée'};
  $('#adRes').innerHTML=a.map(function(x){return '<div class="ad"><span><b>'+esc(x.name)+'</b> · '+esc(x.phone)+'<br><small>'+esc(x.date)+' à '+esc(String(x.time).slice(0,5))+' · '+esc(x.guests)+' pers.'+(x.note?' · '+esc(x.note):'')+' · '+lb[x.status]+'</small></span>'+bts([['rc',x.id,null,'Confirmer'],['rn',x.id,null,'Annuler'],['rd',x.id,null,'Supprimer']])+'</div>'}).join('')||'<p>Aucune réservation pour le moment.</p>';
 }
 async function admRev(){
- var r=await sb.from('reviews').select('*').order('approved').order('created_at',{ascending:false});
+ var r=await sb.from('reviews').select('*').order('approved').order('created_at',{ascending:false});if(r.error){$('#adRev').innerHTML='<p>Erreur : '+esc(r.error.message)+'</p>';return}
  $('#adRev').innerHTML=(r.data||[]).map(function(v){return '<div class="ad"><span>'+stars(v.rating)+' '+esc(v.comment)+' <small>– '+esc(v.author)+(v.approved?'':' (à valider)')+'</small></span>'+bts([['vt',v.id,v.approved,v.approved?'Masquer':'Valider'],['vd',v.id,null,'Supprimer']])+'</div>'}).join('')||'<p>Aucun avis.</p>';
 }
 $('#af').addEventListener('submit',async function(e){
