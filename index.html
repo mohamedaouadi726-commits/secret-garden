@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}catch(e){document.documentElement.dataset.theme="light"}</script>
+<title>Vintage Bistro · Kairouan</title>
+<meta name="description" content="Vintage Bistro, coffee bistro à Kairouan : cafés, smoothies exotiques, frappuccinos. Réservation en ligne.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&family=DM+Serif+Display&family=Karla:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{color-scheme:light;--bg:#f3f1ea;--ink:#16241f;--green:#1f3a32;--brass:#c9953c;--brassTx:#7a5514;--card:#ffffff;--mute:#4f5f58;--line:#cfcab9;--onGreen:#f3f1ea;--bad:#b3261e}
+:root[data-theme=dark]{color-scheme:dark;--bg:#111b17;--ink:#f1ede2;--green:#0c1512;--brass:#d2a24f;--brassTx:#e0b565;--card:#1a2a23;--mute:#a9bab2;--line:#34473e;--onGreen:#f1ede2;--bad:#ff9a90}
+*,*:before,*:after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 Karla,Cairo,system-ui,sans-serif;padding-bottom:env(safe-area-inset-bottom,0)}
+[dir=rtl] body{font-family:Cairo,Karla,system-ui,sans-serif}
+h1,h2,h3{font-family:"DM Serif Display",Cairo,Georgia,serif;font-weight:400;margin:0;line-height:1.15}
+a{color:inherit}
+.wrap{max-width:1000px;margin:0 auto;padding:0 22px}
+.tiles{height:28px;background:conic-gradient(var(--ink) 25%,var(--bg) 0 50%,var(--ink) 0 75%,var(--bg) 0) 0 0/56px 56px}
+.hero{background:var(--green);color:var(--onGreen);padding:0 0 72px}
+.hero .wrap{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:center}
+nav{display:flex;justify-content:space-between;align-items:center;padding:16px 0;gap:12px;grid-column:1/-1;flex-wrap:wrap}
+nav b{font:400 22px "DM Serif Display",Cairo,serif}
+nav .links{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:15px}
+nav a{text-decoration:none;opacity:.85}
+.lang{display:inline-flex;border:1.5px solid var(--brass);border-radius:999px;padding:2px;gap:2px}
+.lang button{background:none;border:0;color:inherit;padding:3px 13px;border-radius:999px;font:inherit;font-size:14px;font-weight:600;line-height:1.5;cursor:pointer}
+.lang button[aria-pressed=true]{background:var(--brass);color:#16241f}
+.theme{background:none;border:1.5px solid var(--brass);color:inherit;border-radius:999px;width:38px;height:38px;font-size:18px;line-height:1;display:inline-grid;place-items:center;padding:0;cursor:pointer}
+.adm .theme{color:var(--ink)}
+::placeholder{color:var(--mute);opacity:1}
+.hero h1{font-size:clamp(42px,8vw,80px);letter-spacing:-.01em}
+.hero p{max-width:34ch;margin:18px 0 28px;opacity:.9;font-size:19px}
+.btn,button{font:inherit;cursor:pointer}
+.btn{display:inline-block;padding:11px 22px;border-radius:999px;text-decoration:none;font-weight:600;margin:0 0 8px;margin-inline-end:8px;border:2px solid var(--brass);background:none;color:inherit}
+.btn.main{background:var(--brass);color:#16241f}
+.hero .btn.alt{color:var(--onGreen)}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.sign{border:2px solid var(--brass);border-radius:200px 200px 14px 14px;padding:44px 24px 28px;text-align:center}
+.sign big{display:block;font:400 50px/1.05 "DM Serif Display",Cairo,serif}
+.sign span{display:block;margin-top:10px;color:var(--brass)}
+section{padding:54px 0}
+h2{font-size:clamp(30px,5vw,42px);margin-bottom:22px}
+.info{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.info div,.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.info small{color:var(--mute);display:block}
+.info strong{font-size:19px}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px}
+.menu h3{font-size:26px;border-bottom:2px solid var(--brass);padding-bottom:8px;margin-bottom:10px}
+.menu ul{list-style:none;margin:0;padding:0}
+.menu li{padding:7px 0;border-bottom:1px dotted var(--line);display:flex;justify-content:space-between;gap:10px}
+.menu li.off{color:var(--mute);text-decoration:line-through}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+form label,.f label{display:block;font-size:14px;color:var(--mute);margin:10px 0 2px}
+input,textarea,select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+input[type=checkbox]{width:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stars{display:flex;gap:4px;direction:ltr;justify-content:flex-start}
+.stars button{background:none;border:0;font-size:30px;line-height:1;color:var(--brassTx);padding:2px}
+.rate{display:flex;gap:20px;align-items:center;margin-bottom:20px}
+.score{font:400 64px/1 "DM Serif Display",serif}
+.rev{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:12px}
+.rev b{margin-inline-end:8px}.rev .st{color:var(--brassTx);letter-spacing:2px;direction:ltr;display:inline-block}
+.rev small{color:var(--mute);display:block}
+.map{border:1px solid var(--line);border-radius:14px;overflow:hidden;min-height:280px}
+.map iframe{width:100%;height:100%;min-height:280px;border:0;display:block}
+.find p{margin:0 0 6px}
+footer{background:var(--green);color:var(--onGreen);padding:28px 0;font-size:14px;text-align:center}
+dialog{width:min(420px,94vw);border:2px solid var(--brass);border-radius:14px;background:var(--bg);color:var(--ink);padding:22px}
+dialog::backdrop{background:#000a}
+.tabs{display:flex;gap:8px;margin:10px 0}
+.tabs button,.sm{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 12px;margin:4px 6px 0 0}
+.tabs button[aria-pressed=true]{background:var(--brass);color:#16241f;border-color:var(--brass)}
+.msg{min-height:1.4em;color:var(--mute);font-size:14px;margin-top:8px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0));background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;z-index:20;max-width:92vw;font-size:15px}
+.adm{padding:20px 0 60px}
+.adm .bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.row input{flex:1 1 130px;width:auto}
+.row .chk{display:flex;gap:6px;align-items:center;margin:0;color:var(--ink)}
+.cat{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:14px 0;background:var(--card)}
+.bad{color:var(--bad)}
+@media(max-width:720px){.hero .wrap,.two{grid-template-columns:1fr}.hero{padding-bottom:52px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<dialog id="auth" aria-label="Compte"></dialog>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* ============ CONFIG : à remplacer par tes valeurs Supabase ============ */
+const SUPABASE_URL = 'https://TON-PROJET.supabase.co';
+const SUPABASE_KEY = 'TA_CLE_ANON_PUBLIQUE';   // Settings > API > anon public (jamais la clé service_role)
+/* ====================================================================== */
+
+const CONFIGURED = !SUPABASE_URL.includes('TON-PROJET');
+const sb = CONFIGURED ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+const I18N = {
+ fr:{menu:'Menu',reviews:'Avis',book:'Réserver',find:'Nous trouver',call:'Appeler le',dir:'Itinéraire',ess:"L'essentiel",hours:'Horaires',budget:'Budget',phone:'Téléphone',
+  menuT:'Au menu',off:'épuisé',bookT:'Réserver une table',name:'Nom',date:'Date',time:'Heure',guests:'Personnes',note:'Remarque (facultatif)',send:'Envoyer la demande',
+  bookOk:'Demande envoyée. On te confirme par téléphone.',revT:'Ce que disent les clients',on:'sur',revs:'avis',noRev:"Pas encore d'avis. Sois le premier !",
+  yours:'Ton avis',comment:'Ton commentaire',post:'Publier mon avis',delMine:'Supprimer mon avis',needLogin:'Connecte-toi pour donner ton avis.',
+  login:'Connexion',signup:'Créer un compte',logout:'Déconnexion',email:'Email',pw:'Mot de passe (6 caractères min.)',myName:'Ton prénom',
+  confirm:'Compte créé. Vérifie ta boîte mail pour confirmer, puis connecte-toi.',revOk:'Merci pour ton avis !',already:'Tu as déjà publié un avis.',
+  demo:'Mode démo : Supabase n’est pas encore configuré.',open:'Ouvrir dans Google Maps',pick:'Choisis une note',hello:'Salut',mine:'Ton avis est publié :',language:'Langue',light:'Passer en mode clair',dark:'Passer en mode nuit'},
+ en:{menu:'Menu',reviews:'Reviews',book:'Book',find:'Find us',call:'Call',dir:'Directions',ess:'At a glance',hours:'Hours',budget:'Budget',phone:'Phone',
+  menuT:'Menu',off:'sold out',bookT:'Book a table',name:'Name',date:'Date',time:'Time',guests:'Guests',note:'Note (optional)',send:'Send request',
+  bookOk:'Request sent. We will confirm by phone.',revT:'What guests say',on:'from',revs:'reviews',noRev:'No reviews yet. Be the first!',
+  yours:'Your review',comment:'Your comment',post:'Post my review',delMine:'Delete my review',needLogin:'Log in to leave a review.',
+  login:'Log in',signup:'Sign up',logout:'Log out',email:'Email',pw:'Password (min. 6 characters)',myName:'Your first name',
+  confirm:'Account created. Check your email to confirm, then log in.',revOk:'Thanks for your review!',already:'You already posted a review.',
+  demo:'Demo mode: Supabase is not configured yet.',open:'Open in Google Maps',pick:'Pick a rating',hello:'Hi',mine:'Your review is live:',language:'Language',light:'Switch to light mode',dark:'Switch to dark mode'},
+ ar:{menu:'القائمة',reviews:'الآراء',book:'احجز',find:'العنوان',call:'اتصل على',dir:'الاتجاهات',ess:'معلومات سريعة',hours:'الأوقات',budget:'الميزانية',phone:'الهاتف',
+  menuT:'القائمة',off:'نفد',bookT:'احجز طاولة',name:'الاسم',date:'التاريخ',time:'الوقت',guests:'عدد الأشخاص',note:'ملاحظة (اختياري)',send:'إرسال الطلب',
+  bookOk:'تم إرسال الطلب. سنؤكد لك عبر الهاتف.',revT:'آراء الزبائن',on:'من',revs:'رأي',noRev:'لا توجد آراء بعد. كن الأول!',
+  yours:'رأيك',comment:'تعليقك',post:'انشر رأيي',delMine:'احذف رأيي',needLogin:'سجّل الدخول لتترك رأيك.',
+  login:'دخول',signup:'إنشاء حساب',logout:'خروج',email:'البريد الإلكتروني',pw:'كلمة السر (6 أحرف على الأقل)',myName:'اسمك الأول',
+  confirm:'تم إنشاء الحساب. تحقق من بريدك للتأكيد ثم سجّل الدخول.',revOk:'شكرا على رأيك!',already:'لقد نشرت رأيك من قبل.',
+  demo:'وضع تجريبي: Supabase غير مفعّل بعد.',open:'افتح في خرائط Google',pick:'اختر تقييما',hello:'مرحبا',mine:'رأيك منشور:',language:'اللغة',light:'التبديل إلى الوضع الفاتح',dark:'التبديل إلى الوضع الليلي'}
+};
+let lang = localStorage.getItem('lang') || 'fr';
+const T = k => (I18N[lang] && I18N[lang][k]) || I18N.fr[k] || k;
+const loc = (o, base) => (lang === 'ar' && o[base + '_ar']) || (lang === 'en' && o[base + '_en']) || o[base];
+
+const DEMO = {
+ cfg:{id:1,name:'Vintage Bistro',tagline_fr:'Cafés, smoothies exotiques et frappuccinos, sur place ou à emporter.',tagline_ar:'قهوة وسموذي استوائي وفرابتشينو، في المكان أو للأخذ.',tagline_en:'Coffee, exotic smoothies and frappuccinos, to sit in or take away.',phone:'52 486 841',hours:"Ouvert jusqu'à 01:00",budget:'1 à 10 DT par personne',address:'Kairouan 3100',lat:35.67306,lng:10.10131},
+ cats:[{id:1,name:'Cafés',name_ar:'قهوة',name_en:'Coffee',items:[{id:1,name:'Café',name_ar:'قهوة',name_en:'Coffee',price:null,available:true}]},
+       {id:2,name:'Smoothies',name_ar:'سموذي',name_en:'Smoothies',items:[{id:2,name:'Smoothie exotique',name_ar:'سموذي استوائي',name_en:'Exotic smoothie',price:null,available:true}]},
+       {id:3,name:'Frappés',name_ar:'مشروبات باردة',name_en:'Iced drinks',items:[{id:3,name:'Frappuccino',name_ar:'فرابتشينو',name_en:'Frappuccino',price:null,available:true}]}]
+};
+let cfg = DEMO.cfg, cats = DEMO.cats, reviews = [], user = null, rating = 0;
+
+const $ = s => document.querySelector(s);
+const dig = s => String(s || '').replace(/\D/g, '');
+function h(t, a, ...c) {
+ const e = document.createElement(t);
+ for (const k in a || {}) { const v = a[k];
+  if (k === 'class') e.className = v;
+  else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+  else if (typeof v === 'boolean' && k.startsWith('aria-')) e.setAttribute(k, String(v));
+  else if (v !== false && v != null) e.setAttribute(k, v === true ? '' : v); }
+ c.flat().forEach(x => e.append(x && x.nodeType ? x : document.createTextNode(x == null ? '' : x)));
+ return e;
+}
+let tt;
+function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 4500); }
+const stars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+
+async function load() {
+ if (!sb) return;
+ const [a, b, c] = await Promise.all([
+  sb.from('settings').select('*').eq('id', 1).maybeSingle(),
+  sb.from('menu_categories').select('*, menu_items(*)').order('position'),
+  sb.from('reviews').select('*').order('created_at', { ascending: false })]);
+ if (a.data) cfg = a.data;
+ if (b.data) cats = b.data.map(x => ({ ...x, items: (x.menu_items || []).sort((p, q) => p.position - q.position) }));
+ if (c.data) reviews = c.data;
+}
+
+/* ===================== SITE PUBLIC ===================== */
+const isDark = () => document.documentElement.dataset.theme === 'dark';
+function paintTheme() {
+ document.querySelectorAll('.theme').forEach(b => { const d = isDark(); b.textContent = d ? '☀' : '☾'; b.setAttribute('aria-label', d ? I18N[document.documentElement.lang === 'ar' || document.documentElement.lang === 'en' ? document.documentElement.lang : 'fr'].light : I18N[document.documentElement.lang === 'ar' || document.documentElement.lang === 'en' ? document.documentElement.lang : 'fr'].dark); b.title = b.getAttribute('aria-label'); });
+}
+function themeBtn() {
+ return h('button', { type: 'button', class: 'theme', onclick: () => { const t = isDark() ? 'light' : 'dark'; document.documentElement.dataset.theme = t; try { localStorage.setItem('theme', t); } catch (e) {} paintTheme(); } });
+}
+function setLang(l) { lang = l; localStorage.setItem('lang', l); route(); }
+
+function site() {
+ document.documentElement.lang = lang;
+ document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+ document.title = cfg.name + ' · Kairouan';
+ const maps = 'https://www.google.com/maps/search/?api=1&query=' + cfg.lat + ',' + cfg.lng;
+ const tel = 'tel:+216' + dig(cfg.phone);
+ const tag = cfg['tagline_' + lang] || cfg.tagline_fr || '';
+ const mine = user && reviews.find(r => r.user_id === user.id);
+ const avg = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) : 0;
+ const today = new Date().toISOString().slice(0, 10);
+
+ const inp = (id, type, req, extra) => h('input', { id, type, required: req, ...(extra || {}) });
+ const bookForm = h('form', { onsubmit: onBook },
+  h('label', { for: 'bn' }, T('name')), inp('bn', 'text', true, { maxlength: 80, autocomplete: 'name' }),
+  h('label', { for: 'bp' }, T('phone')), inp('bp', 'tel', true, { minlength: 6, maxlength: 20, autocomplete: 'tel' }),
+  h('div', { class: 'grid2' },
+   h('div', {}, h('label', { for: 'bd' }, T('date')), inp('bd', 'date', true, { min: today })),
+   h('div', {}, h('label', { for: 'bt' }, T('time')), inp('bt', 'time', true))),
+  h('label', { for: 'bg' }, T('guests')), inp('bg', 'number', true, { min: 1, max: 30, value: 2 }),
+  h('label', { for: 'bo' }, T('note')), h('textarea', { id: 'bo', maxlength: 300, rows: 2 }),
+  h('p', {}, h('button', { class: 'btn main', type: 'submit' }, T('send'))));
+
+ let reviewBox;
+ if (!user) reviewBox = h('div', { class: 'box' }, h('p', {}, T('needLogin')), h('button', { class: 'btn main', type: 'button', onclick: () => openAuth('login') }, T('login')));
+ else if (mine) reviewBox = h('div', { class: 'box' }, h('p', {}, T('mine'), ' ', h('span', { class: 'rev' }, '')), h('button', { class: 'sm', type: 'button', onclick: delMine }, T('delMine')));
+ else {
+  rating = 0;
+  const st = h('div', { class: 'stars', role: 'group', 'aria-label': T('yours') });
+  const paint = () => st.querySelectorAll('button').forEach((b, i) => { b.textContent = i < rating ? '★' : '☆'; b.setAttribute('aria-pressed', i < rating); });
+  for (let i = 1; i <= 5; i++) st.append(h('button', { type: 'button', 'aria-label': i + '/5', onclick: () => { rating = i; paint(); } }, '☆'));
+  reviewBox = h('form', { class: 'box', onsubmit: onReview }, h('b', {}, T('hello') + ' ' + (user.user_metadata?.name || '') + ' 👋'), st,
+   h('label', { for: 'rc' }, T('comment')), h('textarea', { id: 'rc', required: true, maxlength: 600, rows: 3 }),
+   h('p', {}, h('button', { class: 'btn main', type: 'submit' }, T('post'))));
+ }
+ if (mine) { const s = reviewBox.querySelector('.rev'); s.className = ''; s.textContent = stars(mine.rating) + ' · ' + mine.comment; }
+
+ const frame = h('iframe', { title: 'Google Maps', loading: 'lazy', src: 'https://maps.google.com/maps?q=' + cfg.lat + ',' + cfg.lng + '&z=17&output=embed' });
+
+ $('#app').replaceChildren(
+  h('header', { class: 'hero' }, h('div', { class: 'wrap' },
+   h('nav', {}, h('b', {}, cfg.name),
+    h('div', { class: 'links' },
+     h('a', { href: '#menu' }, T('menu')), h('a', { href: '#book' }, T('book')), h('a', { href: '#avis' }, T('reviews')), h('a', { href: '#venir' }, T('find')),
+     user ? h('a', { href: '#', onclick: async e => { e.preventDefault(); await sb.auth.signOut(); } }, T('logout')) : h('a', { href: '#', onclick: e => { e.preventDefault(); openAuth('login'); } }, T('login')),
+     h('div', { class: 'lang', role: 'group', 'aria-label': T('language') }, ...[['fr', 'FR', 'Français'], ['ar', 'عربي', 'العربية'], ['en', 'EN', 'English']].map(([l, txt, full]) => h('button', { type: 'button', lang: l, title: full, 'aria-label': full, 'aria-pressed': l === lang, onclick: () => setLang(l) }, txt))),
+     themeBtn())),
+   h('div', {}, h('h1', {}, cfg.name), h('p', {}, tag),
+    h('a', { class: 'btn main', href: tel }, T('call') + ' ' + cfg.phone), h('a', { class: 'btn alt', href: '#book' }, T('book'))),
+   h('div', { class: 'sign', 'aria-hidden': 'true' }, h('big', {}, cfg.name), h('span', {}, cfg.address)))),
+  h('div', { class: 'tiles', 'aria-hidden': 'true' }),
+  h('main', {},
+   h('section', { class: 'wrap' }, h('h2', {}, T('ess')), h('div', { class: 'info' },
+    ...[[T('hours'), cfg.hours], [T('budget'), cfg.budget], [T('phone'), cfg.phone]].map(([l, v]) => h('div', {}, h('small', {}, l), h('strong', {}, v))))),
+   h('section', { class: 'wrap', id: 'menu' }, h('h2', {}, T('menuT')), h('div', { class: 'menu' },
+    ...cats.map(c => h('div', {}, h('h3', {}, loc(c, 'name')), h('ul', {}, ...c.items.map(x =>
+     h('li', { class: x.available ? '' : 'off' }, h('span', {}, loc(x, 'name') + (x.available ? '' : ' (' + T('off') + ')')), h('span', {}, x.price != null ? x.price + ' DT' : ''))))))
+   )),
+   h('section', { class: 'wrap', id: 'book' }, h('div', { class: 'two' }, h('div', {}, h('h2', {}, T('bookT'))), h('div', { class: 'box' }, bookForm))),
+   h('section', { class: 'wrap', id: 'avis' }, h('h2', {}, T('revT')),
+    reviews.length ? h('div', { class: 'rate' }, h('div', { class: 'score' }, avg.toFixed(1).replace('.', lang === 'en' ? '.' : ',')), h('div', {}, h('div', { class: 'rev', style: 'border:0;background:none;padding:0;margin:0' }, h('span', { class: 'st' }, stars(Math.round(avg)))), reviews.length + ' ' + T('revs'))) : h('p', {}, T('noRev')),
+    h('div', { class: 'two' }, h('div', {}, reviewBox),
+     h('div', {}, ...reviews.map(r => h('div', { class: 'rev' }, h('b', {}, r.author_name), h('span', { class: 'st' }, stars(r.rating)), h('small', {}, new Date(r.created_at).toLocaleDateString(lang === 'ar' ? 'ar-TN' : lang)), h('p', { style: 'margin:6px 0 0' }, r.comment)))))),
+   h('section', { class: 'wrap', id: 'venir' }, h('h2', {}, T('find')), h('div', { class: 'two find' },
+    h('div', {}, h('p', {}, h('strong', {}, cfg.name)), h('p', {}, cfg.address), h('p', {}, T('phone') + ' : ', h('a', { href: tel }, cfg.phone)),
+     h('p', { style: 'margin-top:18px' }, h('a', { class: 'btn main', href: maps }, T('open')), h('a', { class: 'btn', href: 'https://wa.me/216' + dig(cfg.phone) }, 'WhatsApp'))),
+    h('div', { class: 'map' }, frame)))),
+  h('div', { class: 'tiles', 'aria-hidden': 'true' }),
+  h('footer', {}, h('div', { class: 'wrap' }, cfg.name + ' · ' + cfg.address + ' · Site réalisé par Mohamed, designer & développeur web')));
+ paintTheme();
+}
+
+async function onBook(e) {
+ e.preventDefault();
+ if (!sb) return toast(T('demo'));
+ const v = id => $('#' + id).value.trim();
+ const { error } = await sb.from('reservations').insert({ name: v('bn'), phone: v('bp'), date: v('bd'), time: v('bt'), guests: Number(v('bg')), note: v('bo') || null });
+ if (error) return toast(error.message);
+ e.target.reset(); toast(T('bookOk'));
+}
+async function onReview(e) {
+ e.preventDefault();
+ if (!rating) return toast(T('pick'));
+ const { error } = await sb.from('reviews').insert({ user_id: user.id, author_name: (user.user_metadata?.name || user.email.split('@')[0]).slice(0, 60), rating, comment: $('#rc').value.trim() });
+ if (error) return toast(error.code === '23505' ? T('already') : error.message);
+ toast(T('revOk')); await load(); route();
+}
+async function delMine() { const { error } = await sb.from('reviews').delete().eq('user_id', user.id); if (error) return toast(error.message); await load(); route(); }
+
+/* ===================== COMPTE CLIENT ===================== */
+function openAuth(mode) {
+ const d = $('#auth');
+ const draw = m => {
+  const msg = h('div', { class: 'msg', role: 'alert' });
+  const f = h('form', { class: 'f', onsubmit: async e => {
+    e.preventDefault();
+    if (!sb) return toast(T('demo'));
+    const email = $('#ae').value.trim(), pw = $('#ap').value;
+    if (m === 'signup') {
+     const { data, error } = await sb.auth.signUp({ email, password: pw, options: { data: { name: $('#an').value.trim() } } });
+     if (error) return msg.textContent = error.message;
+     if (!data.session) { msg.textContent = T('confirm'); return; }
+    } else {
+     const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+     if (error) return msg.textContent = /confirm/i.test(error.message) ? T('confirm') : error.message;
+    }
+    d.close();
+   } },
+   m === 'signup' ? [h('label', { for: 'an' }, T('myName')), h('input', { id: 'an', required: true, maxlength: 40, autocomplete: 'given-name' })] : '',
+   h('label', { for: 'ae' }, T('email')), h('input', { id: 'ae', type: 'email', required: true, autocomplete: 'email' }),
+   h('label', { for: 'ap' }, T('pw')), h('input', { id: 'ap', type: 'password', required: true, minlength: 6, autocomplete: m === 'signup' ? 'new-password' : 'current-password' }),
+   h('p', {}, h('button', { class: 'btn main', type: 'submit' }, m === 'signup' ? T('signup') : T('login'))), msg);
+  d.replaceChildren(
+   h('div', { class: 'tabs' }, h('button', { type: 'button', 'aria-pressed': m === 'login', onclick: () => draw('login') }, T('login')), h('button', { type: 'button', 'aria-pressed': m === 'signup', onclick: () => draw('signup') }, T('signup')),
+    h('button', { type: 'button', class: 'sm', onclick: () => d.close(), 'aria-label': 'Fermer' }, '✕')), f);
+ };
+ draw(mode); d.showModal();
+}
+
+/* ===================== ADMIN (#admin) ===================== */
+let tab = 'info';
+async function checkAdmin() {
+ if (!sb || !user) return false;
+ const { data } = await sb.from('admins').select('user_id').eq('user_id', user.id).maybeSingle();
+ return !!data;
+}
+async function admin() {
+ document.documentElement.lang = 'fr'; document.documentElement.dir = 'ltr'; document.title = 'Admin · ' + cfg.name;
+ const app = $('#app');
+ if (!sb) { app.replaceChildren(h('div', { class: 'wrap adm' }, themeBtn(), h('h2', {}, 'Admin'), h('p', {}, T('demo')))); paintTheme(); return; }
+ if (!user) {
+  const msg = h('div', { class: 'msg', role: 'alert' });
+  app.replaceChildren(h('div', { class: 'wrap adm', style: 'max-width:420px' }, themeBtn(), h('h2', {}, 'Espace admin'),
+   h('form', { class: 'f', onsubmit: async e => { e.preventDefault();
+     const { error } = await sb.auth.signInWithPassword({ email: $('#le').value.trim(), password: $('#lp').value });
+     if (error) msg.textContent = /confirm/i.test(error.message) ? 'Email non confirmé : dans Supabase, Authentication > Users, confirme ce compte (ou crée-le avec "Auto Confirm User").' : error.message; } },
+    h('label', { for: 'le' }, 'Email'), h('input', { id: 'le', type: 'email', required: true, autocomplete: 'email' }),
+    h('label', { for: 'lp' }, 'Mot de passe'), h('input', { id: 'lp', type: 'password', required: true, autocomplete: 'current-password' }),
+    h('p', {}, h('button', { class: 'btn main', type: 'submit' }, 'Se connecter')), msg),
+   h('p', {}, h('a', { href: '#' }, '← Retour au site'))));
+  paintTheme();
+  return;
+ }
+ if (!(await checkAdmin())) {
+  app.replaceChildren(h('div', { class: 'wrap adm' }, h('h2', {}, 'Accès refusé'), h('p', {}, 'Ce compte n’est pas administrateur. Ajoute-le dans la table admins (voir schema.sql, étape 5).'),
+   h('button', { class: 'sm', onclick: () => sb.auth.signOut() }, 'Déconnexion'), h('a', { class: 'sm', href: '#' }, 'Retour au site')));
+  return;
+ }
+ await load();
+ const body = h('div', {});
+ const tabs = [['info', 'Infos'], ['menu', 'Menu'], ['res', 'Réservations'], ['rev', 'Avis']];
+ app.replaceChildren(h('div', { class: 'wrap adm' },
+  h('div', { class: 'bar' }, h('h2', { style: 'margin:0' }, 'Gérer ' + cfg.name), h('div', { class: 'row' }, themeBtn(), h('a', { class: 'sm', href: '#' }, 'Voir le site'), h('button', { class: 'sm', onclick: () => sb.auth.signOut() }, 'Déconnexion'))),
+  h('div', { class: 'tabs' }, ...tabs.map(([k, l]) => h('button', { type: 'button', 'aria-pressed': k === tab, onclick: () => { tab = k; admin(); } }, l))), body));
+ ({ info: tabInfo, menu: tabMenu, res: tabRes, rev: tabRev })[tab](body);
+ paintTheme();
+}
+const abtn = (t, f, cls) => h('button', { type: 'button', class: cls || 'sm', onclick: f }, t);
+async function run(p, ok) { const r = await p; if (r.error) toast(r.error.message); else { toast(ok || 'Enregistré ✓'); } return r; }
+
+function editor(table, o, fields, after) {
+ const v = {}; const w = h('div', { class: 'row' });
+ fields.forEach(([k, label, type]) => {
+  v[k] = o[k] ?? (type === 'bool' ? false : '');
+  const i = h('input', { type: type === 'bool' ? 'checkbox' : type === 'num' ? 'number' : 'text', placeholder: label, 'aria-label': label, step: 'any' });
+  if (type === 'bool') { i.checked = !!v[k]; i.addEventListener('change', () => v[k] = i.checked); }
+  else { i.value = v[k] ?? ''; i.addEventListener('input', () => v[k] = type === 'num' ? (i.value === '' ? null : Number(i.value)) : i.value); }
+  w.append(type === 'bool' ? h('label', { class: 'chk' }, i, label) : i);
+ });
+ const clean = () => { const r = {}; fields.forEach(([k]) => r[k] = v[k] === '' ? null : v[k]); if ('name' in r && r.name == null) r.name = ''; return r; };
+ w.append(abtn('Enregistrer', () => run(sb.from(table).update(clean()).eq('id', o.id))),
+  abtn('Supprimer', async () => { if (!confirm('Supprimer ?')) return; const r = await run(sb.from(table).delete().eq('id', o.id), 'Supprimé'); if (!r.error) admin(); }, 'sm bad'));
+ return w;
+}
+
+function tabInfo(b) {
+ const fs = [['name', 'Nom'], ['tagline_fr', 'Accroche (FR)'], ['tagline_ar', 'Accroche (AR)'], ['tagline_en', 'Accroche (EN)'], ['phone', 'Téléphone'], ['hours', 'Horaires'], ['budget', 'Budget'], ['address', 'Adresse'], ['lat', 'Latitude', 'num'], ['lng', 'Longitude', 'num']];
+ const v = { ...cfg }; const f = h('div', { class: 'f' });
+ fs.forEach(([k, l, t]) => { const i = h('input', { id: 'i_' + k, type: 'text' }); i.value = v[k] ?? '';
+  i.addEventListener('input', () => v[k] = t === 'num' ? (i.value === '' ? null : Number(i.value)) : i.value);
+  f.append(h('label', { for: 'i_' + k }, l), i); });
+ f.append(h('p', {}, h('button', { class: 'btn main', type: 'button', onclick: () => { const r = { id: 1 }; fs.forEach(([k]) => r[k] = v[k]); run(sb.from('settings').upsert(r)); } }, 'Enregistrer les infos')));
+ b.append(h('div', { class: 'box' }, f));
+}
+function tabMenu(b) {
+ cats.forEach(c => {
+  const box = h('div', { class: 'cat' }, h('b', {}, 'Catégorie'), editor('menu_categories', c, [['name', 'Nom FR'], ['name_ar', 'Nom AR'], ['name_en', 'Nom EN'], ['position', 'Ordre', 'num']]));
+  c.items.forEach(it => box.append(editor('menu_items', it, [['name', 'Produit FR'], ['name_ar', 'AR'], ['name_en', 'EN'], ['price', 'Prix DT', 'num'], ['position', 'Ordre', 'num'], ['available', 'Dispo', 'bool']])));
+  box.append(abtn('+ Ajouter un produit', async () => { const r = await run(sb.from('menu_items').insert({ category_id: c.id, name: 'Nouveau produit', position: c.items.length + 1 }), 'Ajouté'); if (!r.error) admin(); }));
+  b.append(box);
+ });
+ b.append(abtn('+ Ajouter une catégorie', async () => { const r = await run(sb.from('menu_categories').insert({ name: 'Nouvelle catégorie', position: cats.length + 1 }), 'Ajoutée'); if (!r.error) admin(); }));
+}
+async function tabRes(b) {
+ const { data, error } = await sb.from('reservations').select('*').order('date', { ascending: false }).order('time');
+ if (error) return b.append(h('p', { class: 'bad' }, error.message));
+ if (!data.length) return b.append(h('p', {}, 'Aucune réservation pour le moment.'));
+ data.forEach(r => {
+  const sel = h('select', { 'aria-label': 'Statut', style: 'width:auto' }, ...[['pending', 'En attente'], ['confirmed', 'Confirmée'], ['cancelled', 'Annulée']].map(([k, l]) => h('option', { value: k, selected: k === r.status }, l)));
+  sel.addEventListener('change', () => run(sb.from('reservations').update({ status: sel.value }).eq('id', r.id)));
+  b.append(h('div', { class: 'box', style: 'margin-bottom:10px' }, h('b', {}, r.name + ' · ' + r.guests + ' pers.'), h('div', {}, r.date + ' à ' + r.time + ' · ', h('a', { href: 'tel:' + r.phone }, r.phone)), r.note ? h('small', {}, r.note) : '',
+   h('div', { class: 'row' }, sel, abtn('Supprimer', async () => { if (!confirm('Supprimer ?')) return; const x = await run(sb.from('reservations').delete().eq('id', r.id), 'Supprimée'); if (!x.error) admin(); }, 'sm bad'))));
+ });
+}
+function tabRev(b) {
+ if (!reviews.length) return b.append(h('p', {}, 'Aucun avis pour le moment.'));
+ reviews.forEach(r => b.append(h('div', { class: 'box', style: 'margin-bottom:10px' }, h('b', {}, r.author_name + ' '), h('span', { class: 'st', style: 'color:var(--brassTx)' }, stars(r.rating)), h('p', { style: 'margin:6px 0' }, r.comment),
+  abtn('Supprimer cet avis', async () => { if (!confirm('Supprimer cet avis ?')) return; const x = await run(sb.from('reviews').delete().eq('id', r.id), 'Supprimé'); if (!x.error) { await load(); admin(); } }, 'sm bad'))));
+}
+
+/* ===================== ROUTAGE ===================== */
+let inAdmin = false;
+function route() { inAdmin = location.hash === '#admin'; return inAdmin ? admin() : site(); }
+window.addEventListener('hashchange', () => { if ((location.hash === '#admin') !== inAdmin) { window.scrollTo(0, 0); route(); } });
+(async function init() {
+ if (sb) {
+  const { data } = await sb.auth.getSession(); user = data.session?.user || null;
+  sb.auth.onAuthStateChange((_e, s) => { const id = s?.user?.id || null; if (id !== (user?.id || null)) { user = s?.user || null; route(); } });
+ } else if (location.hash !== '#admin') setTimeout(() => toast(T('demo')), 800);
+ try { await load(); } catch (e) { toast('Erreur de chargement : ' + e.message); }
+ route();
+})();
+</script>
+</body>
+</html>
